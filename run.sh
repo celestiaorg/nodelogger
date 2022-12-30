@@ -3,7 +3,7 @@
 set -o errexit -o nounset
 
 # Read common EVN vars
-export $(cat ../.env | xargs)
+export $(cat ../.env | sed '/^#/d' | xargs)
 
 export LOG_LEVEL="info"
 
@@ -22,4 +22,4 @@ export DEMO="true"
 
 export GOPRIVATE=github.com/celestiaorg/leaderboard-backend
 
-go mod tidy && reset && go build -o app . && ./app
+reset && go mod tidy && go build -o app . && ./app

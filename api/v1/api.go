@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/celestiaorg/nodelogger/database/metrics"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
 )
@@ -47,7 +48,7 @@ func NewRESTApiV1(mt *metrics.Metrics, logger *zap.Logger) *RESTApiV1 {
 	return api
 }
 
-func (a *RESTApiV1) Serve(addr string) error {
+func (a *RESTApiV1) Serve(addr, originAllowed string) error {
 
 	if addr == "" {
 		addr = ":8090"
@@ -55,8 +56,12 @@ func (a *RESTApiV1) Serve(addr string) error {
 
 	http.Handle("/", a.router)
 
+	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Content-Length", "Accept-Encoding", "Authorization", "X-CSRF-Token"})
+	originsOk := handlers.AllowedOrigins([]string{originAllowed})
+	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
+
 	a.logger.Info(fmt.Sprintf("serving on %s", addr))
-	return http.ListenAndServe(addr, a.router)
+	return http.ListenAndServe(addr, handlers.CORS(originsOk, headersOk, methodsOk)(a.router))
 }
 
 func (a *RESTApiV1) GetAllAPIs() []string {

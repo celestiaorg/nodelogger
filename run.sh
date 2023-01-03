@@ -13,7 +13,10 @@ export PROMETHEUS_SYNC_INTERVAL=30  #seconds
 # export EXEC_PATH=./
 
 export API_ROWS_PER_PAGE=100
-export REST_API_ADDRESS=":5050"
+export REST_API_ADDRESS=":5052"
+# ORIGIN_ALLOWED is like `scheme://dns[:port]`, or `*` (insecure)
+export ORIGIN_ALLOWED="*"
+
 
 export DEMO="true"
 

@@ -71,7 +71,12 @@ func main() {
 		logger.Fatal("`REST_API_ADDRESS` is empty")
 	}
 
-	restApi.Serve(addr)
+	originAllowed := os.Getenv("ORIGIN_ALLOWED")
+	if originAllowed == "" {
+		logger.Fatal("`ORIGIN_ALLOWED` is empty")
+	}
+
+	logger.Fatal(fmt.Sprintf("REST API server: %v", restApi.Serve(addr, originAllowed)))
 }
 
 func getLogger() (*zap.Logger, error) {

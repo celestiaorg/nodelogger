@@ -4,6 +4,7 @@ go 1.19
 
 require (
 	github.com/celestiaorg/leaderboard-backend v0.0.0-20221205144718-51d5e9c4fd77
+	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.8.0
 	go.uber.org/zap v1.23.0
 	gorm.io/driver/postgres v1.4.5
@@ -39,6 +40,7 @@ require (
 	github.com/dgryski/go-farm v0.0.0-20200201041132-a6ae2369ad13 // indirect
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/dvsekhvalnov/jose2go v1.5.0 // indirect
+	github.com/felixge/httpsnoop v1.0.1 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/go-kit/kit v0.12.0 // indirect
 	github.com/go-kit/log v0.2.1 // indirect

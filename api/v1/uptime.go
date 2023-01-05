@@ -19,10 +19,21 @@ func (a *RESTApiV1) GetNodeUptimeById(resp http.ResponseWriter, req *http.Reques
 		return
 	}
 
+	nodeRecords, _, err := a.metrics.FindByNodeId(id, 0, 1)
+	if err == nil && len(nodeRecords) == 0 {
+		err = fmt.Errorf("node not found")
+	}
+	if err != nil {
+		a.logger.Error(fmt.Sprintf("api `GetNodeUptimeById`: %v", err))
+		http.Error(resp, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
 	err = sendJSON(resp,
 		map[string]interface{}{
-			"uptime":  uptime,
-			"node_id": id,
+			"uptime":    uptime,
+			"node_id":   id,
+			"node_type": nodeRecords[0].NodeType.String(),
 		},
 	)
 	a.logger.Info(fmt.Sprintf("api call `GetNodeUptimeById` %v id: %v", req.URL.Path, id))

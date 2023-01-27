@@ -12,6 +12,7 @@ func (a *RESTApiV1) IndexPage(resp http.ResponseWriter, req *http.Request) {
 
 	modName := "unknown"
 	buildInfo := ""
+
 	if bi, ok := debug.ReadBuildInfo(); ok {
 		modName = bi.Path
 
@@ -46,6 +47,7 @@ func (a *RESTApiV1) IndexPage(resp http.ResponseWriter, req *http.Request) {
 		html += fmt.Sprintf(`<a href="%s">%s</a><br />`, a, a)
 	}
 
+	html += fmt.Sprintf("<br />Production Mode: %v", os.Getenv("PRODUCTION_MODE"))
 	html += buildInfo
 
 	resp.Header().Set("Content-Type", "text/html; charset=utf-8")

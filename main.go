@@ -86,13 +86,19 @@ func getLogger() (*zap.Logger, error) {
 		logLevel = "info"
 	}
 
-	cfg := zap.NewDevelopmentConfig()
-	// cfg := zap.NewProductionConfig()
+	var cfg zap.Config
 
-	// cfg.OutputPaths = []string{"stdout",...}
-	// cfg.ErrorOutputPaths = []string{"stderr",...}
-	// cfg.Encoding = "console"	// "console" | "json"
-	cfg.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder // Use only with console encoder (i.e. not in production)
+	if os.Getenv("PRODUCTION_MODE") == "true" {
+		cfg = zap.NewProductionConfig()
+		cfg.OutputPaths = []string{"stdout"}
+		cfg.ErrorOutputPaths = []string{"stderr"}
+		cfg.Encoding = "console" // "console" | "json"
+
+	} else {
+		cfg = zap.NewDevelopmentConfig()
+		// Use only with console encoder (i.e. not in production)
+		cfg.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
+	}
 
 	var err error
 	cfg.Level, err = zap.ParseAtomicLevel(logLevel)

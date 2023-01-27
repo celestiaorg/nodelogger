@@ -22,6 +22,9 @@ func (a *RESTApiV1) GetNodeUptimeById(resp http.ResponseWriter, req *http.Reques
 	nodeRecords, _, err := a.metrics.FindByNodeId(id, 0, 1)
 	if err == nil && len(nodeRecords) == 0 {
 		err = fmt.Errorf("node not found")
+		a.logger.Info(fmt.Sprintf("api `GetNodeUptimeById`: %v", err))
+		http.Error(resp, err.Error(), http.StatusNotFound)
+		return
 	}
 	if err != nil {
 		a.logger.Error(fmt.Sprintf("api `GetNodeUptimeById`: %v", err))

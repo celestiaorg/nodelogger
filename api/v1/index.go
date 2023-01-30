@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"runtime/debug"
+	"strings"
 )
 
 // IndexPage implements GET /
@@ -44,7 +45,8 @@ func (a *RESTApiV1) IndexPage(resp http.ResponseWriter, req *http.Request) {
 	allAPIs := a.GetAllAPIs()
 	html += "<h3>List of endpoints:</h3>"
 	for _, a := range allAPIs {
-		html += fmt.Sprintf(`<a href="%s">%s</a><br />`, a, a)
+		href := strings.TrimPrefix(a, "/") // it fixes the links if the service is running under a path
+		html += fmt.Sprintf(`<a href="%s">%s</a><br />`, href, a)
 	}
 
 	html += fmt.Sprintf("<br />Production Mode: %v", os.Getenv("PRODUCTION_MODE"))

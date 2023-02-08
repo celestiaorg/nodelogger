@@ -7,8 +7,12 @@ export $(cat ../.env | sed '/^#/d' | xargs)
 
 export LOG_LEVEL="info"
 
-export PROMETHEUS_URL="http://localhost:9090"
+export PROMETHEUS_URL="http://localhost:9093"
 export PROMETHEUS_SYNC_INTERVAL=30  #seconds
+
+# export APP_TM_RPC="http://localhost:26657"
+export APP_TM_RPC="https://rpc-mamaki.pops.one:443"
+
 
 # export EXEC_PATH=./
 
@@ -18,7 +22,7 @@ export REST_API_ADDRESS=":5052"
 export ORIGIN_ALLOWED="*"
 
 
-export DEMO="true"
+export DEMO="false"
 
 #--------------------------#
 # For dev only

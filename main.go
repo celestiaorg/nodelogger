@@ -45,22 +45,35 @@ func main() {
 	/*------*/
 
 	prom := getPrometheusReceiver(logger)
-	prom.SetOnNewDataCallBack(func(data map[string]*receiver.CelestiaNode) {
+	prom.SetOnNewDataCallBack(func(node *receiver.CelestiaNode) {
 
-		for _, d := range data {
-			mt.AddNodeData(&models.CelestiaNode{
-				NodeId:           d.ID,
-				NodeType:         d.Type,
-				LastPfdTimestamp: d.LastPfdTimestamp,
-				PfdCount:         d.PfdCount,
-				Head:             d.Head,
-			})
-		}
+		mt.AddNodeData(&models.CelestiaNode{
+			NodeId:                      node.ID,
+			NodeType:                    node.Type,
+			LastPfbTimestamp:            node.LastPfbTimestamp,
+			PfbCount:                    node.PfbCount,
+			Head:                        node.Head,
+			NetworkHeight:               node.NetworkHeight,
+			DasLatestSampledTimestamp:   node.DasLatestSampledTimestamp,
+			DasNetworkHead:              node.DasNetworkHead,
+			DasSampledChainHead:         node.DasSampledChainHead,
+			DasSampledHeadersCounter:    node.DasSampledHeadersCounter,
+			DasTotalSampledHeaders:      node.DasTotalSampledHeaders,
+			TotalSyncedHeaders:          node.TotalSyncedHeaders,
+			StartTime:                   node.StartTime,
+			LastRestartTime:             node.LastRestartTime,
+			NodeRuntimeCounterInSeconds: node.NodeRuntimeCounterInSeconds,
+			LastAccumulativeNodeRuntimeCounterInSeconds: node.LastAccumulativeNodeRuntimeCounterInSeconds,
+			Uptime: node.Uptime,
+		})
 
-		logger.Info(fmt.Sprintf("%d data points stored in db", len(data)))
 	})
+	// logger.Info(fmt.Sprintf("%d data points stored in db", len(data)))
 
-	prom.Init()
+	tm := getTendermintReceiver(logger)
+
+	re := receiver.New(prom, nil, tm, logger)
+	re.Init()
 
 	/*------*/
 
@@ -133,4 +146,18 @@ func getPrometheusReceiver(logger *zap.Logger) *receiver.PrometheusReceiver {
 	}
 
 	return receiver.NewPrometheusReceiver(promURL, promInterval, logger, false)
+}
+
+func getTendermintReceiver(logger *zap.Logger) *receiver.TendermintReceiver {
+
+	if os.Getenv("DEMO") == "true" {
+		return receiver.NewTendermintReceiver("", 0, 0, 3600, "", logger, true)
+	}
+
+	rpcAddr := os.Getenv("APP_TM_RPC")
+	if rpcAddr == "" {
+		logger.Fatal("`APP_TM_RPC` is empty")
+	}
+
+	return receiver.NewTendermintReceiver(rpcAddr, 10, 10, 10, "", logger, false)
 }

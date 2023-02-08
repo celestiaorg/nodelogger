@@ -57,7 +57,7 @@ func (m *Metrics) GetAllNodes(offset, limit int) ([]models.CelestiaNode, int64, 
 
 	tx = m.db.Offset(offset).Limit(limit).
 		Order(clause.OrderByColumn{
-			Column: clause.Column{Name: "pfd_count"},
+			Column: clause.Column{Name: "uptime"},
 			Desc:   true,
 		}).Find(&res)
 	return res, count, tx.Error
@@ -79,7 +79,7 @@ func (m *Metrics) GetNodesByType(nType receiver.NodeType, offset, limit int) ([]
 	tx = m.db.Offset(offset).Limit(limit).
 		Where(&models.CelestiaNode{NodeType: nType}).
 		Order(clause.OrderByColumn{
-			Column: clause.Column{Name: "pfd_count"},
+			Column: clause.Column{Name: "uptime"},
 			Desc:   true,
 		}).Find(&res)
 	return res, count, tx.Error
@@ -93,30 +93,13 @@ func (m *Metrics) GetNodeUpTime(nodeId string) (float32, error) {
 		return 0, tx.Error
 	}
 
-	// We might need to omit the time check as this code might be running
-	// long time after the incentivized testnet
-	// lastTwoHours := time.Now().Add(-2 * time.Hour)
-	// if nodeInfo.LastPfdTimestamp.After(lastTwoHours) {
-	// 	return 0, nil
-	// }
+	return nodeInfo.Uptime, nil
+}
 
-	var topNode models.CelestiaNode
-	tx = m.db.
-		Where(&models.CelestiaNode{NodeType: nodeInfo.NodeType}).
-		Order(clause.OrderByColumn{
-			Column: clause.Column{Name: "pfd_count"},
-			Desc:   true,
-		}).First(&topNode)
+func (m *Metrics) FindByNodeIdAtNetworkHeight(nodeId string, networkHeight uint64) ([]models.CelestiaNode, error) {
 
-	if tx.Error != nil {
-		return 0, tx.Error
-	}
-	if topNode.PfdCount == 0 {
-		return 0, nil
-	}
+	var res []models.CelestiaNode
 
-	// Calculate the position of the given node wrt the top node's performance (as expected PFD)
-	performance := float64(nodeInfo.PfdCount) / float64(topNode.PfdCount)
-
-	return float32(performance), nil
+	tx := m.db.Where(&models.CelestiaNode{NodeId: nodeId, NetworkHeight: networkHeight}).Find(&res)
+	return res, tx.Error
 }

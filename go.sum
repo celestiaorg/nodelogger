@@ -95,8 +95,10 @@ github.com/btcsuite/goleveldb v0.0.0-20160330041536-7834afc9e8cd/go.mod h1:F+uVa
 github.com/btcsuite/snappy-go v0.0.0-20151229074030-0bdef8d06723/go.mod h1:8woku9dyThutzjeg+3xrA5iCpBRH8XEEg3lh6TiUghc=
 github.com/btcsuite/websocket v0.0.0-20150119174127-31079b680792/go.mod h1:ghJtEyQwv5/p4Mg4C0fgbePVuGr935/5ddU9Z3TmDRY=
 github.com/btcsuite/winsvc v1.0.0/go.mod h1:jsenWakMcC0zFBFurPLEAyrnc/teJEM1O46fmI40EZs=
-github.com/celestiaorg/leaderboard-backend v0.0.0-20221205144718-51d5e9c4fd77 h1:Kbj13CPs51t9xZ9Fu3tunXwAkdOp/IrzplyCDHApeTQ=
-github.com/celestiaorg/leaderboard-backend v0.0.0-20221205144718-51d5e9c4fd77/go.mod h1:Uz4aFDxwhvzt+LMsMnDrc/PNOZH1/oVIePg2cEbGypI=
+github.com/celestiaorg/leaderboard-backend v0.0.0-20230208161802-fafe33c5fead h1:ip9M+fukqHg8ui1DkG4x2eK+Vo5196AAKpSDQBBOGjU=
+github.com/celestiaorg/leaderboard-backend v0.0.0-20230208161802-fafe33c5fead/go.mod h1:ae0WCvHx1UaHp3AFDpphPg7AOZ5r1rMW4WrCVMR+oU4=
+github.com/celestiaorg/tools v0.0.0-20230109090957-b69775a93828 h1:Dwjs8VogP/EDVsEDQiwAIZH9cHZCvGe+xl2GsB7DzcA=
+github.com/celestiaorg/tools v0.0.0-20230109090957-b69775a93828/go.mod h1:Vk4S+eZ+IMvNcL1bv28HMF6qCPlOwtw8ziI9evMCbvo=
 github.com/cenkalti/backoff v2.2.1+incompatible h1:tNowT99t7UNflLxfYYSlKYsBpXdEet03Pg2g16Swow4=
 github.com/cenkalti/backoff/v4 v4.1.1 h1:G2HAfAmvm/GcKan2oOQpBXOd2tT2G57ZnZGWa1PxPBQ=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=

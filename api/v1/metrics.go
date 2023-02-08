@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/celestiaorg/leaderboard-backend/receiver"
 	"github.com/gorilla/mux"
@@ -86,7 +87,7 @@ func (a *RESTApiV1) GetLightNodes(resp http.ResponseWriter, req *http.Request) {
 	}
 }
 
-// GetLightNodes implements GET /metrics/nodes/{id}
+// GetNodeById implements GET /metrics/nodes/{id}
 func (a *RESTApiV1) GetNodeById(resp http.ResponseWriter, req *http.Request) {
 
 	id := mux.Vars(req)["id"]
@@ -95,7 +96,7 @@ func (a *RESTApiV1) GetNodeById(resp http.ResponseWriter, req *http.Request) {
 
 	rows, totalRows, err := a.metrics.FindByNodeId(id, int(limitOffset.Offset), int(limitOffset.Limit))
 	if err != nil {
-		a.logger.Error(fmt.Sprintf("api `GetLightNodes`: %v", err))
+		a.logger.Error(fmt.Sprintf("api `GetNodeById`: %v", err))
 		http.Error(resp, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
@@ -111,11 +112,44 @@ func (a *RESTApiV1) GetNodeById(resp http.ResponseWriter, req *http.Request) {
 			"rows":       rows,
 		},
 	)
-	a.logger.Info(fmt.Sprintf("api call `FindNodeById` %v id: %v", req.URL.Path, id))
-	a.logger.Debug(fmt.Sprintf("api call `FindNodeById` limitOffset: %#v totalRows: %v", limitOffset, totalRows))
+	a.logger.Info(fmt.Sprintf("api call `GetNodeById` %v id: %v", req.URL.Path, id))
+	a.logger.Debug(fmt.Sprintf("api call `GetNodeById` limitOffset: %#v totalRows: %v", limitOffset, totalRows))
 
 	if err != nil {
-		a.logger.Error(fmt.Sprintf("sendJSON `FindNodeById`: %v", err))
+		a.logger.Error(fmt.Sprintf("sendJSON `GetNodeById`: %v", err))
+	}
+}
+
+// GetNodeByIdAtNetworkHeight implements GET /metrics/nodes/{id}/height/{height}
+func (a *RESTApiV1) GetNodeByIdAtNetworkHeight(resp http.ResponseWriter, req *http.Request) {
+
+	id := mux.Vars(req)["id"]
+
+	heightStr := mux.Vars(req)["height"]
+	height, err := strconv.ParseUint(heightStr, 10, 64)
+	if err != nil {
+		a.logger.Error(fmt.Sprintf("api `GetNodeByIdAtNetworkHeight`: %v", err))
+		http.Error(resp, "malformed height value", http.StatusBadRequest)
+		return
+	}
+
+	rows, err := a.metrics.FindByNodeIdAtNetworkHeight(id, height)
+	if err != nil {
+		a.logger.Error(fmt.Sprintf("api `GetNodeByIdAtNetworkHeight`: %v", err))
+		http.Error(resp, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	err = sendJSON(resp,
+		map[string]interface{}{
+			"rows": rows,
+		},
+	)
+	a.logger.Info(fmt.Sprintf("api call `GetNodeByIdAtNetworkHeight` %v id: %v", req.URL.Path, id))
+	a.logger.Debug(fmt.Sprintf("api call `GetNodeByIdAtNetworkHeight` totalRows: %v", len(rows)))
+
+	if err != nil {
+		a.logger.Error(fmt.Sprintf("sendJSON `GetNodeByIdAtNetworkHeight`: %v", err))
 	}
 }
 

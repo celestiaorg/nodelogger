@@ -161,6 +161,11 @@ func (a *RESTApiV1) GetNodeByIdAtNetworkHeight(resp http.ResponseWriter, req *ht
 		return
 	}
 
+	// cut the rows if there are too many of them
+	if len(rows) > 100 {
+		rows = rows[:100]
+	}
+
 	err = sendJSON(resp,
 		map[string]interface{}{
 			"rows": rows,

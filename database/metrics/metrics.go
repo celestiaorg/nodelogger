@@ -103,3 +103,11 @@ func (m *Metrics) FindByNodeIdAtNetworkHeight(nodeId string, networkHeight uint6
 	tx := m.db.Where(&models.CelestiaNode{NodeId: nodeId, NetworkHeight: networkHeight}).Find(&res)
 	return res, tx.Error
 }
+
+func (m *Metrics) FindByNodeIdAtNetworkHeightRange(nodeId string, networkHeightBegin, networkHeightEnd uint64) ([]models.CelestiaNode, error) {
+
+	var res []models.CelestiaNode
+
+	tx := m.db.Where("node_id = ? AND ( network_height BETWEEN ? AND ? )", nodeId, networkHeightBegin, networkHeightEnd).Find(&res)
+	return res, tx.Error
+}

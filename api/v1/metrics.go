@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/celestiaorg/leaderboard-backend/receiver"
+	"github.com/celestiaorg/nodelogger/database/models"
 	"github.com/gorilla/mux"
 )
 
@@ -121,6 +122,7 @@ func (a *RESTApiV1) GetNodeById(resp http.ResponseWriter, req *http.Request) {
 }
 
 // GetNodeByIdAtNetworkHeight implements GET /metrics/nodes/{id}/height/{height}
+// GetNodeByIdAtNetworkHeight implements GET /metrics/nodes/{id}/height/{height}/{height_end}  Search into a range of heights
 func (a *RESTApiV1) GetNodeByIdAtNetworkHeight(resp http.ResponseWriter, req *http.Request) {
 
 	id := mux.Vars(req)["id"]
@@ -133,7 +135,26 @@ func (a *RESTApiV1) GetNodeByIdAtNetworkHeight(resp http.ResponseWriter, req *ht
 		return
 	}
 
-	rows, err := a.metrics.FindByNodeIdAtNetworkHeight(id, height)
+	heightEnd := uint64(0)
+	heightEndStr := mux.Vars(req)["height_end"]
+
+	if heightEndStr != "" {
+
+		heightEnd, err = strconv.ParseUint(heightEndStr, 10, 64)
+		if err != nil {
+			a.logger.Error(fmt.Sprintf("api `GetNodeByIdAtNetworkHeight`: %v", err))
+			http.Error(resp, "malformed height_end value", http.StatusBadRequest)
+			return
+		}
+	}
+
+	var rows []models.CelestiaNode
+	if heightEnd != 0 {
+		rows, err = a.metrics.FindByNodeIdAtNetworkHeightRange(id, height, heightEnd)
+	} else {
+		rows, err = a.metrics.FindByNodeIdAtNetworkHeight(id, height)
+	}
+
 	if err != nil {
 		a.logger.Error(fmt.Sprintf("api `GetNodeByIdAtNetworkHeight`: %v", err))
 		http.Error(resp, "Internal Server Error", http.StatusInternalServerError)

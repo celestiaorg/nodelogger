@@ -3,7 +3,7 @@ module github.com/celestiaorg/nodelogger
 go 1.19
 
 require (
-	github.com/celestiaorg/leaderboard-backend v0.0.0-20230214120638-dfadb6ccedf1
+	github.com/celestiaorg/leaderboard-backend v0.0.0-20230216191554-54ac8f03cd25
 	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.8.0
 	go.uber.org/zap v1.23.0

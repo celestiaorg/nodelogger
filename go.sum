@@ -95,8 +95,8 @@ github.com/btcsuite/goleveldb v0.0.0-20160330041536-7834afc9e8cd/go.mod h1:F+uVa
 github.com/btcsuite/snappy-go v0.0.0-20151229074030-0bdef8d06723/go.mod h1:8woku9dyThutzjeg+3xrA5iCpBRH8XEEg3lh6TiUghc=
 github.com/btcsuite/websocket v0.0.0-20150119174127-31079b680792/go.mod h1:ghJtEyQwv5/p4Mg4C0fgbePVuGr935/5ddU9Z3TmDRY=
 github.com/btcsuite/winsvc v1.0.0/go.mod h1:jsenWakMcC0zFBFurPLEAyrnc/teJEM1O46fmI40EZs=
-github.com/celestiaorg/leaderboard-backend v0.0.0-20230216191554-54ac8f03cd25 h1:/tHoLGn7JAX4ww5ZMJmtZfacTN73vWOOwyUNUQDdKls=
-github.com/celestiaorg/leaderboard-backend v0.0.0-20230216191554-54ac8f03cd25/go.mod h1:ae0WCvHx1UaHp3AFDpphPg7AOZ5r1rMW4WrCVMR+oU4=
+github.com/celestiaorg/leaderboard-backend v0.0.0-20230217094355-6e1d95ba063e h1:8hzaEZ/UG6vvLRPIQobPfXYOwb6qMIMQtPqPSgP3msE=
+github.com/celestiaorg/leaderboard-backend v0.0.0-20230217094355-6e1d95ba063e/go.mod h1:ae0WCvHx1UaHp3AFDpphPg7AOZ5r1rMW4WrCVMR+oU4=
 github.com/celestiaorg/tools v0.0.0-20230109090957-b69775a93828 h1:Dwjs8VogP/EDVsEDQiwAIZH9cHZCvGe+xl2GsB7DzcA=
 github.com/celestiaorg/tools v0.0.0-20230109090957-b69775a93828/go.mod h1:Vk4S+eZ+IMvNcL1bv28HMF6qCPlOwtw8ziI9evMCbvo=
 github.com/cenkalti/backoff v2.2.1+incompatible h1:tNowT99t7UNflLxfYYSlKYsBpXdEet03Pg2g16Swow4=

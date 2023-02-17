@@ -70,10 +70,13 @@ func main() {
 	})
 	// logger.Info(fmt.Sprintf("%d data points stored in db", len(data)))
 
+	// The tendermint receiver is needed to get the network height
+	// as we do not collect data about validators, it does not need to be initiated
 	tm := getTendermintReceiver(logger)
 
 	re := receiver.New(prom, nil, tm, logger)
-	re.Init()
+	// Only prometheus receiver service need to be initiated
+	re.InitPrometheus()
 
 	/*------*/
 

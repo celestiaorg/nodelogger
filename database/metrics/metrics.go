@@ -8,15 +8,18 @@ import (
 )
 
 type Metrics struct {
-	db *gorm.DB
+	db          *gorm.DB
+	InsertQueue *InsertQueue
 }
 
 const defaultLimit = 100
 
 func New(db *gorm.DB) *Metrics {
-	return &Metrics{
+	m := &Metrics{
 		db: db,
 	}
+	m.InsertQueue = NewInsertQueue(m)
+	return m
 }
 
 func (m *Metrics) AddNodeData(data *models.CelestiaNode) error {

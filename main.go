@@ -41,13 +41,14 @@ func main() {
 	/*------*/
 
 	mt := metrics.New(db)
+	mt.InsertQueue.Start()
 
 	/*------*/
 
 	prom := getPrometheusReceiver(logger)
 	prom.SetOnNewDataCallBack(func(node *receiver.CelestiaNode) {
 
-		mt.AddNodeData(&models.CelestiaNode{
+		mt.InsertQueue.Add(&models.CelestiaNode{
 			NodeId:                      node.ID,
 			NodeType:                    node.Type,
 			LastPfbTimestamp:            node.LastPfbTimestamp,

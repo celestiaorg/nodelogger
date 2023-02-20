@@ -4,6 +4,7 @@ go 1.19
 
 require (
 	github.com/celestiaorg/leaderboard-backend v0.0.0-20230217094355-6e1d95ba063e
+	github.com/foize/go.fifo v0.0.0-20130327144150-3a04cfeec121
 	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.8.0
 	go.uber.org/zap v1.23.0

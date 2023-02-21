@@ -130,13 +130,15 @@ func getPrometheusReceiver(logger *zap.Logger) *receiver.PrometheusReceiver {
 
 	if os.Getenv("DEMO") == "true" {
 		logger.Info("Demo mode activated")
-		return receiver.NewPrometheusReceiver("0", 10, logger, true)
+		return receiver.NewPrometheusReceiver("0", 10, logger, "", true)
 	}
 
 	promURL := os.Getenv("PROMETHEUS_URL")
 	if promURL == "" {
 		logger.Fatal("`PROMETHEUS_URL` is empty")
 	}
+
+	promNSprefix := os.Getenv("PROMETHEUS_NAMESPACE_PREFIX") // This can be empty
 
 	promIntervalStr := os.Getenv("PROMETHEUS_SYNC_INTERVAL")
 	if promIntervalStr == "" {
@@ -149,7 +151,7 @@ func getPrometheusReceiver(logger *zap.Logger) *receiver.PrometheusReceiver {
 		logger.Fatal(fmt.Sprintf("`PROMETHEUS_SYNC_INTERVAL` env: %v", err))
 	}
 
-	return receiver.NewPrometheusReceiver(promURL, promInterval, logger, false)
+	return receiver.NewPrometheusReceiver(promURL, promInterval, logger, promNSprefix, false)
 }
 
 func getTendermintReceiver(logger *zap.Logger) *receiver.TendermintReceiver {

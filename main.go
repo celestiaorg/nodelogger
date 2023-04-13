@@ -130,7 +130,7 @@ func getPrometheusReceiver(logger *zap.Logger) *receiver.PrometheusReceiver {
 
 	if os.Getenv("DEMO") == "true" {
 		logger.Info("Demo mode activated")
-		return receiver.NewPrometheusReceiver("0", 10, logger, "", true)
+		return receiver.NewPrometheusReceiver("0", 10, logger, "", 0, true)
 	}
 
 	promURL := os.Getenv("PROMETHEUS_URL")
@@ -151,7 +151,7 @@ func getPrometheusReceiver(logger *zap.Logger) *receiver.PrometheusReceiver {
 		logger.Fatal(fmt.Sprintf("`PROMETHEUS_SYNC_INTERVAL` env: %v", err))
 	}
 
-	return receiver.NewPrometheusReceiver(promURL, promInterval, logger, promNSprefix, false)
+	return receiver.NewPrometheusReceiver(promURL, promInterval, logger, promNSprefix, 0, false)
 }
 
 func getTendermintReceiver(logger *zap.Logger) *receiver.TendermintReceiver {

@@ -39,4 +39,4 @@ FROM alpine:latest AS production
 WORKDIR /app/
 COPY --from=development /build .
 
-ENTRYPOINT ["./app"]
+ENTRYPOINT ["./app start"]

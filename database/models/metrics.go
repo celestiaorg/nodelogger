@@ -14,7 +14,7 @@ type CelestiaNode struct {
 	LastPfbTimestamp                            time.Time
 	PfbCount                                    uint64
 	Head                                        uint64
-	NetworkHeight                               uint64
+	NetworkHeight                               uint64 `gorm:"index;"`
 	DasLatestSampledTimestamp                   time.Time
 	DasNetworkHead                              uint64
 	DasSampledChainHead                         uint64

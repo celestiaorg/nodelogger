@@ -37,6 +37,6 @@ ENTRYPOINT ["tail", "-f", "/dev/null"]
 FROM alpine:latest AS production
 
 WORKDIR /app/
-COPY --from=development /build .
+COPY --from=development /build/* .
 
-ENTRYPOINT ["./app start"]
+ENTRYPOINT ["./app","start"]

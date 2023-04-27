@@ -40,8 +40,13 @@ func (m *Metrics) RecomputeUptimeForAll() ([]models.CelestiaNode, error) {
 		if err != nil {
 			return nodesList, err
 		}
-		newUptime := nodeUptime(latestNodeData, uint64(newRunTime))
-		fmt.Printf("\toldUptime: %v\tnewUptime: %v\n", latestNodeData.NewUptime, newUptime)
+		networkHeight, err := m.getTheLatestNetworkHeight()
+		if err != nil {
+			return nodesList, err
+		}
+
+		newUptime := nodeUptime(latestNodeData, uint64(newRunTime), networkHeight)
+		fmt.Printf("\toldUptime: %v\tnewUptime: %v\n", latestNodeData.Uptime, newUptime)
 
 		latestNodeData.NewUptime = newUptime
 		latestNodeData.LastAccumulativeNodeRuntimeCounterInSeconds = uint64(newRunTime)
@@ -121,15 +126,19 @@ func (m *Metrics) recomputeRuntime(nodeId string, networkHeightBegin uint64) (in
 	return totalNodeRuntime, nil
 }
 
-func nodeUptime(node models.CelestiaNode, totalRunTime uint64) float32 {
+func nodeUptime(node models.CelestiaNode, totalRunTime uint64, networkHeight uint64) float32 {
 
 	totalSyncedBlocks := node.DasTotalSampledHeaders // full & light nodes
 	if node.NodeType == receiver.BridgeNodeType {
 		totalSyncedBlocks = node.Head
 	}
 
-	syncUptime := float64(totalSyncedBlocks) / float64(node.NetworkHeight)
+	syncUptime := float64(totalSyncedBlocks) / float64(networkHeight)
 	tsUptime := float64(totalRunTime) / time.Since(node.StartTime).Seconds()
+
+	// tools.PrintJson(node)
+	// fmt.Printf("syncUptime: %v\n", syncUptime)
+	// fmt.Printf("tsUptime: %v\n", tsUptime)
 
 	if syncUptime < tsUptime || node.StartTime.IsZero() {
 		return float32(100 * syncUptime)
@@ -150,10 +159,6 @@ func (m *Metrics) GetLatestNodeData(nodeId string) (models.CelestiaNode, error) 
 			"node_id" = '%s' 
 		ORDER BY "id" DESC
 		LIMIT 1`, nodeId)
-	// tx := m.db.Raw(SQL).Scan(&rows)
-	// if tx.Error != nil {
-	// 	return models.CelestiaNode{}, tx.Error
-	// }
 	if err := database.CachedQuery(m.db, SQL, &rows); err != nil {
 		return models.CelestiaNode{}, err
 	}
@@ -162,4 +167,22 @@ func (m *Metrics) GetLatestNodeData(nodeId string) (models.CelestiaNode, error) 
 	}
 	return rows[0], nil
 
+}
+
+func (m *Metrics) getTheLatestNetworkHeight() (uint64, error) {
+
+	var rows []models.CelestiaNode
+
+	SQL := `
+		SELECT 
+			MAX("network_height") AS "network_height"
+		FROM "celestia_nodes"`
+
+	if err := database.Query(m.db, SQL, &rows); err != nil {
+		return 0, err
+	}
+	if len(rows) == 0 {
+		return 0, fmt.Errorf("node not found")
+	}
+	return rows[0].NetworkHeight, nil
 }

@@ -15,3 +15,5 @@
 # vendor/
 my_keys/
 app
+run.sh
+cache/

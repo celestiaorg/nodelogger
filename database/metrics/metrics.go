@@ -88,17 +88,6 @@ func (m *Metrics) GetNodesByType(nType receiver.NodeType, offset, limit int) ([]
 	return res, count, tx.Error
 }
 
-func (m *Metrics) GetNodeUpTime(nodeId string) (float32, error) {
-
-	var nodeInfo models.CelestiaNode
-	tx := m.db.Where(&models.CelestiaNode{NodeId: nodeId}).Last(&nodeInfo)
-	if tx.Error != nil {
-		return 0, tx.Error
-	}
-
-	return nodeInfo.Uptime, nil
-}
-
 func (m *Metrics) FindByNodeIdAtNetworkHeight(nodeId string, networkHeight uint64) ([]models.CelestiaNode, error) {
 
 	var res []models.CelestiaNode

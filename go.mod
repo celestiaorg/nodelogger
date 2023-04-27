@@ -3,7 +3,8 @@ module github.com/celestiaorg/nodelogger
 go 1.19
 
 require (
-	github.com/celestiaorg/leaderboard-backend v0.0.0-20230406143047-d2dfea87252e
+	github.com/celestiaorg/leaderboard-backend v0.0.0-20230426132432-ceab99e90d22
+	github.com/celestiaorg/tools v0.0.0-20230109090957-b69775a93828
 	github.com/foize/go.fifo v0.0.0-20130327144150-3a04cfeec121
 	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.8.0
@@ -25,7 +26,6 @@ require (
 	github.com/bgentry/speakeasy v0.1.0 // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2 // indirect
 	github.com/celestiaorg/nmt v0.14.0 // indirect
-	github.com/celestiaorg/tools v0.0.0-20230109090957-b69775a93828 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/confio/ics23/go v0.9.0 // indirect

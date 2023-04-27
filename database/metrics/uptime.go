@@ -30,8 +30,8 @@ func (m *Metrics) RecomputeUptimeForAll() ([]models.CelestiaNode, error) {
 		return nodesList, err
 	}
 
-	for _, nodeId := range rows {
-		fmt.Printf("nodeId: %v ", nodeId)
+	for i, nodeId := range rows {
+		fmt.Printf("[ %d / %d ] nodeId: %v ", i+1, len(rows), nodeId)
 		latestNodeData, err := m.GetLatestNodeData(nodeId)
 		if err != nil {
 			return nodesList, err

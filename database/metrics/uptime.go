@@ -64,7 +64,8 @@ func (m *Metrics) recomputeRuntime(nodeId string, networkHeightBegin uint64) (in
 	var rows []models.CelestiaNode
 
 	SQL := fmt.Sprintf(`
-		SELECT SUM("time_gap_seconds") AS "new_runtime"
+		SELECT 
+			CAST(ROUND(SUM("time_gap_seconds")::NUMERIC) AS BIGINT) AS "new_runtime"
 		FROM (
 		  SELECT 
 			t1."id", 

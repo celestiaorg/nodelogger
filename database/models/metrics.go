@@ -27,4 +27,5 @@ type CelestiaNode struct {
 	LastAccumulativeNodeRuntimeCounterInSeconds uint64
 	Uptime                                      float32
 	NewUptime                                   float32
+	NewRuntime                                  int64
 }

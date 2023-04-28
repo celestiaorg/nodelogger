@@ -58,7 +58,43 @@ func (m *Metrics) RecomputeUptimeForAll() ([]models.CelestiaNode, error) {
 	return nodesList, nil
 }
 
+// This one processes everything in the DB and so it avoids transferring huge amount of data to the client and so it is faster
 func (m *Metrics) recomputeRuntime(nodeId string, networkHeightBegin uint64) (int64, error) {
+
+	var rows []models.CelestiaNode
+
+	SQL := fmt.Sprintf(`
+		SELECT SUM("time_gap_seconds") AS "new_runtime"
+		FROM (
+		  SELECT 
+			t1."id", 
+			t1."node_id", 
+			t1."created_at", 
+			EXTRACT(EPOCH FROM (MIN(t2."created_at") - t1."created_at")) AS "time_gap_seconds"
+		  FROM 
+			"celestia_nodes" t1 
+			LEFT JOIN "celestia_nodes" t2 ON t1.node_id = t2.node_id AND t1."created_at" < t2."created_at" 
+		  WHERE 
+			t1."network_height" > %d 	
+		  	AND t1."node_id" = '%s'
+		  GROUP BY 
+			t1."id", t1."node_id", t1."created_at" 
+		  ORDER BY 
+			t1."id" ASC
+		) AS subquery
+		WHERE "time_gap_seconds" < 100`, networkHeightBegin, nodeId)
+	if err := database.CachedQuery(m.db, SQL, &rows); err != nil {
+		return 0, err
+	}
+	if len(rows) == 0 {
+		return 0, nil
+	}
+
+	return rows[0].NewRuntime, nil
+}
+
+// This is not very optimized
+func (m *Metrics) recomputeRuntime_old(nodeId string, networkHeightBegin uint64) (int64, error) {
 
 	const limit = 100
 	offset := int64(0)

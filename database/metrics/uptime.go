@@ -59,31 +59,49 @@ func (m *Metrics) RecomputeUptimeForAll() ([]models.CelestiaNode, error) {
 }
 
 // This one processes everything in the DB and so it avoids transferring huge amount of data to the client and so it is faster
+// It stores the outcome in cache and if re-execute it again, it reads the already processed data from cache in sequences
 func (m *Metrics) recomputeRuntime(nodeId string, networkHeightBegin uint64) (int64, error) {
 
 	var rows []models.CelestiaNode
 
-	SQL := fmt.Sprintf(`
+	latestIdFromCache := uint(0)
+	latestRuntimeFromCache := int64(0)
+
+	SQLTxt := `
 		SELECT 
-			CAST(ROUND(SUM("time_gap_seconds")::NUMERIC) AS BIGINT) AS "new_runtime"
+			MAX("id") AS "id",
+			CAST(ROUND(SUM("time_gap_seconds")::NUMERIC) AS BIGINT) + %d AS "new_runtime"
 		FROM (
-		  SELECT 
+		SELECT 
 			t1."id", 
 			t1."node_id", 
 			t1."created_at", 
 			EXTRACT(EPOCH FROM (MIN(t2."created_at") - t1."created_at")) AS "time_gap_seconds"
-		  FROM 
+		FROM 
 			"celestia_nodes" t1 
 			LEFT JOIN "celestia_nodes" t2 ON t1.node_id = t2.node_id AND t1."created_at" < t2."created_at" 
-		  WHERE 
-			t1."network_height" > %d 	
-		  	AND t1."node_id" = '%s'
-		  GROUP BY 
+		WHERE 
+			t1."id" >= %d
+			AND t1."network_height" > %d 	
+			AND t1."node_id" = '%s'
+		GROUP BY 
 			t1."id", t1."node_id", t1."created_at" 
-		  ORDER BY 
+		ORDER BY 
 			t1."id" ASC
 		) AS subquery
-		WHERE "time_gap_seconds" < 100`, networkHeightBegin, nodeId)
+		WHERE "time_gap_seconds" < 100`
+
+	SQL := fmt.Sprintf(SQLTxt, latestIdFromCache, latestRuntimeFromCache, networkHeightBegin, nodeId)
+	for database.ExistCachedQuery(SQL) {
+		if err := database.CachedQuery(m.db, SQL, &rows); err != nil {
+			return 0, err
+		}
+		if len(rows) != 0 {
+			latestIdFromCache = rows[0].ID
+			latestRuntimeFromCache = rows[0].NewRuntime
+			SQL = fmt.Sprintf(SQLTxt, latestIdFromCache, latestRuntimeFromCache, networkHeightBegin, nodeId)
+		}
+	}
 	if err := database.CachedQuery(m.db, SQL, &rows); err != nil {
 		return 0, err
 	}

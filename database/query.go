@@ -29,6 +29,15 @@ func CachedQuery(db *gorm.DB, SQL string, rows interface{}) error {
 	return nil
 }
 
+func ExistCachedQuery(SQL string) bool {
+
+	sqlHash := fmt.Sprint(sha256.Sum256([]byte(SQL)))
+
+	diskStorage := cache.New()
+	_, err := diskStorage.Read(sqlHash)
+	return err == nil
+}
+
 func RemoveCachedQuery(SQL string) error {
 
 	sqlHash := fmt.Sprint(sha256.Sum256([]byte(SQL)))

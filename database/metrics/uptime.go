@@ -62,6 +62,8 @@ func (m *Metrics) RecomputeUptimeForAll() ([]models.CelestiaNode, error) {
 // It stores the outcome in cache and if re-execute it again, it reads the already processed data from cache in sequences
 func (m *Metrics) recomputeRuntime(nodeId string, networkHeightBegin uint64) (int64, error) {
 
+	startTime := time.Now().Unix()
+
 	var rows []models.CelestiaNode
 
 	latestIdFromCache := uint(0)
@@ -108,6 +110,9 @@ func (m *Metrics) recomputeRuntime(nodeId string, networkHeightBegin uint64) (in
 	if len(rows) == 0 {
 		return 0, nil
 	}
+
+	timeLapse := time.Now().Unix() - startTime
+	fmt.Printf("\tTimeLapse: %v s", timeLapse)
 
 	return rows[0].NewRuntime, nil
 }

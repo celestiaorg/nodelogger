@@ -99,9 +99,16 @@ func (m *Metrics) recomputeRuntime(nodeId string, networkHeightBegin uint64) (in
 			return 0, err
 		}
 		if len(rows) != 0 {
+			if latestIdFromCache == rows[0].ID {
+				break // no new rows to process
+			}
+
 			latestIdFromCache = rows[0].ID
 			latestRuntimeFromCache = rows[0].NewRuntime
 			SQL = fmt.Sprintf(SQLTxt, latestIdFromCache, latestRuntimeFromCache, networkHeightBegin, nodeId)
+		} else {
+
+			break // no results
 		}
 	}
 	if err := database.CachedQuery(m.db, SQL, &rows); err != nil {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/celestiaorg/leaderboard-backend/receiver"
 	"github.com/celestiaorg/nodelogger/database"
@@ -42,11 +43,25 @@ func getLogger() (*zap.Logger, error) {
 	return cfg.Build()
 }
 
+func getUptimeStartTime(logger *zap.Logger) time.Time {
+
+	uptimeStartTimeStr := os.Getenv("UPTIME_START_TIME")
+	if uptimeStartTimeStr == "" {
+		logger.Fatal("`UPTIME_START_TIME` is empty")
+	}
+	uptimeStartTime, err := time.Parse(time.RFC3339, uptimeStartTimeStr)
+	if err != nil {
+		logger.Fatal(fmt.Sprintf("Error parsing `UPTIME_START_TIME` date: %v", err))
+	}
+
+	return uptimeStartTime
+}
+
 func getPrometheusReceiver(logger *zap.Logger) *receiver.PrometheusReceiver {
 
 	if getDemoMode() {
 		logger.Info("Demo mode activated")
-		return receiver.NewPrometheusReceiver("0", 10, logger, "", 0, true)
+		return receiver.NewPrometheusReceiver("0", 10, logger, "", 0, time.Now().Add(-10*24*time.Hour), true)
 	}
 
 	promURL := os.Getenv("PROMETHEUS_URL")
@@ -67,7 +82,9 @@ func getPrometheusReceiver(logger *zap.Logger) *receiver.PrometheusReceiver {
 		logger.Fatal(fmt.Sprintf("`PROMETHEUS_SYNC_INTERVAL` env: %v", err))
 	}
 
-	return receiver.NewPrometheusReceiver(promURL, promInterval, logger, promNSprefix, 0, false)
+	uptimeStartTime := getUptimeStartTime(logger)
+
+	return receiver.NewPrometheusReceiver(promURL, promInterval, logger, promNSprefix, 0, uptimeStartTime, false)
 }
 
 func getTendermintReceiver(logger *zap.Logger) *receiver.TendermintReceiver {

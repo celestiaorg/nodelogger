@@ -20,7 +20,7 @@ func (m *Metrics) GetNodeUpTime(nodeId string) (float32, error) {
 	return nodeInfo.Uptime, nil
 }
 
-func (m *Metrics) RecomputeUptimeForAll() ([]models.CelestiaNode, error) {
+func (m *Metrics) RecomputeUptimeForAll(uptimeStartTime time.Time) ([]models.CelestiaNode, error) {
 
 	nodesList := []models.CelestiaNode{}
 
@@ -45,7 +45,7 @@ func (m *Metrics) RecomputeUptimeForAll() ([]models.CelestiaNode, error) {
 			return nodesList, err
 		}
 
-		newUptime := nodeUptime(latestNodeData, uint64(newRunTime), networkHeight)
+		newUptime := nodeUptime(latestNodeData, uint64(newRunTime), networkHeight, uptimeStartTime)
 		fmt.Printf("\toldUptime: %v\tnewUptime: %v\n", latestNodeData.Uptime, newUptime)
 
 		latestNodeData.NewUptime = newUptime
@@ -193,15 +193,21 @@ func (m *Metrics) recomputeRuntime_old(nodeId string, networkHeightBegin uint64)
 	return totalNodeRuntime, nil
 }
 
-func nodeUptime(node models.CelestiaNode, totalRunTime uint64, networkHeight uint64) float32 {
+func nodeUptime(node models.CelestiaNode, totalRunTime uint64, networkHeight uint64, uptimeStartTime time.Time) float32 {
 
 	totalSyncedBlocks := node.DasTotalSampledHeaders // full & light nodes
 	if node.NodeType == receiver.BridgeNodeType {
 		totalSyncedBlocks = node.Head
 	}
 
+	// for nodes that started late
+	nodeStartTime := node.StartTime
+	if nodeStartTime.After(uptimeStartTime) {
+		nodeStartTime = uptimeStartTime
+	}
+
 	syncUptime := float64(totalSyncedBlocks) / float64(networkHeight)
-	tsUptime := float64(totalRunTime) / time.Since(node.StartTime).Seconds()
+	tsUptime := float64(totalRunTime) / time.Since(nodeStartTime).Seconds()
 
 	// tools.PrintJson(node)
 	// fmt.Printf("syncUptime: %v\n", syncUptime)
@@ -226,7 +232,7 @@ func (m *Metrics) GetLatestNodeData(nodeId string) (models.CelestiaNode, error) 
 			"node_id" = '%s' 
 		ORDER BY "id" DESC
 		LIMIT 1`, nodeId)
-	if err := database.CachedQuery(m.db, SQL, &rows); err != nil {
+	if err := database.Query(m.db, SQL, &rows); err != nil {
 		return models.CelestiaNode{}, err
 	}
 	if len(rows) == 0 {

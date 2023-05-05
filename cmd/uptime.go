@@ -48,8 +48,10 @@ var uptimeRecomputeCmd = &cobra.Command{
 
 		mt := metrics.New(db)
 
+		uptimeStartTime := getUptimeStartTime(logger)
+
 		fmt.Printf("Computing uptime for all nodes...\n")
-		nodesList, err := mt.RecomputeUptimeForAll()
+		nodesList, err := mt.RecomputeUptimeForAll(uptimeStartTime)
 		if err != nil {
 			return err
 		}
@@ -84,6 +86,7 @@ func exportNodeDataForLeaderboard(nodesList []models.CelestiaNode) error {
 			Node: receiver.Node{
 				ID:                node.NodeId,
 				Type:              node.NodeType,
+				Version:           node.Version,
 				LatestMetricsTime: node.CreatedAt,
 			},
 			Uptime:                      node.NewUptime,

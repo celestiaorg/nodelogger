@@ -44,6 +44,7 @@ var startCmd = &cobra.Command{
 			mt.InsertQueue.Add(&models.CelestiaNode{
 				NodeId:                      node.ID,
 				NodeType:                    node.Type,
+				Version:                     node.Version,
 				LastPfbTimestamp:            node.LastPfbTimestamp,
 				PfbCount:                    node.PfbCount,
 				Head:                        node.Head,

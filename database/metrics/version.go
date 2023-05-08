@@ -13,13 +13,15 @@ func (m *Metrics) GetNodesVersions(nodeId string) ([]models.NodeVersion, error) 
 
 	SQL := fmt.Sprintf(`
 		SELECT 
-			"node_id","version", "created_at" 
-		FROM "celestia_nodes" 
+			"node_id",
+			"version",
+			MIN("created_at") AS "created_at"
+		FROM "celestia_nodes"
 		WHERE 
 			"node_id" = '%s'
 			AND "version" != ''
-		ORDER BY 
-			"created_at" DESC`, nodeId)
+		GROUP BY "node_id", "version"
+		ORDER BY "created_at" DESC`, nodeId)
 	if err := database.Query(m.db, SQL, &rows); err != nil {
 		return rows, err
 	}

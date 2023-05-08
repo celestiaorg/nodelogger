@@ -31,7 +31,7 @@ type CelestiaNode struct {
 	NewRuntime                                  int64
 }
 type NodeVersion struct {
-	NodeId    string
-	Version   string
-	CreatedAt time.Time
+	NodeId    string    `json:"node_id"`
+	Version   string    `json:"version"`
+	CreatedAt time.Time `json:"created_at"`
 }

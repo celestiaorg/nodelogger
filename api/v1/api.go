@@ -48,6 +48,8 @@ func NewRESTApiV1(mt *metrics.Metrics, logger *zap.Logger) *RESTApiV1 {
 
 	api.router.HandleFunc(path("/uptime/nodes/{id}"), api.GetNodeUptimeById).Methods("GET")
 
+	api.router.HandleFunc(path("/versions/nodes/{id}"), api.GetNodeVersionsById).Methods("GET")
+
 	return api
 }
 

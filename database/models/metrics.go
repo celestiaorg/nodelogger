@@ -30,3 +30,8 @@ type CelestiaNode struct {
 	NewUptime                                   float32
 	NewRuntime                                  int64
 }
+type NodeVersion struct {
+	NodeId    string
+	Version   string
+	CreatedAt time.Time
+}

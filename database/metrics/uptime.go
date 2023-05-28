@@ -45,7 +45,7 @@ func (m *Metrics) RecomputeUptimeForAll(uptimeStartTime, uptimeEndTime time.Time
 			return nodesList, err
 		}
 
-		newUptime := nodeUptime(latestNodeData, uint64(newRunTime), networkHeight, uptimeStartTime)
+		newUptime := nodeUptime(latestNodeData, uint64(newRunTime), networkHeight, uptimeStartTime, uptimeEndTime)
 		fmt.Printf("\toldUptime: %v\tnewUptime: %v\n", latestNodeData.Uptime, newUptime)
 
 		latestNodeData.NewUptime = newUptime
@@ -195,7 +195,7 @@ func (m *Metrics) recomputeRuntime_old(nodeId string, networkHeightBegin uint64)
 	return totalNodeRuntime, nil
 }
 
-func nodeUptime(node models.CelestiaNode, totalRunTime uint64, networkHeight uint64, uptimeStartTime time.Time) float32 {
+func nodeUptime(node models.CelestiaNode, totalRunTime uint64, networkHeight uint64, uptimeStartTime, uptimeEndTime time.Time) float32 {
 
 	totalSyncedBlocks := node.DasTotalSampledHeaders // full & light nodes
 	if node.NodeType == receiver.BridgeNodeType {
@@ -209,7 +209,7 @@ func nodeUptime(node models.CelestiaNode, totalRunTime uint64, networkHeight uin
 	}
 
 	syncUptime := float64(totalSyncedBlocks) / float64(networkHeight)
-	tsUptime := float64(totalRunTime) / time.Since(nodeStartTime).Seconds()
+	tsUptime := float64(totalRunTime) / float64(uptimeEndTime.Unix()-nodeStartTime.Unix())
 
 	// tools.PrintJson(node)
 	// fmt.Printf("syncUptime: %v\n", syncUptime)

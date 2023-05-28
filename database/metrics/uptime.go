@@ -20,7 +20,7 @@ func (m *Metrics) GetNodeUpTime(nodeId string) (float32, error) {
 	return nodeInfo.Uptime, nil
 }
 
-func (m *Metrics) RecomputeUptimeForAll(uptimeStartTime time.Time) ([]models.CelestiaNode, error) {
+func (m *Metrics) RecomputeUptimeForAll(uptimeStartTime, uptimeEndTime time.Time) ([]models.CelestiaNode, error) {
 
 	nodesList := []models.CelestiaNode{}
 
@@ -36,7 +36,7 @@ func (m *Metrics) RecomputeUptimeForAll(uptimeStartTime time.Time) ([]models.Cel
 		if err != nil {
 			return nodesList, err
 		}
-		newRunTime, err := m.recomputeRuntime(nodeId, 0)
+		newRunTime, err := m.recomputeRuntime(nodeId, 0, uptimeEndTime)
 		if err != nil {
 			return nodesList, err
 		}
@@ -60,7 +60,7 @@ func (m *Metrics) RecomputeUptimeForAll(uptimeStartTime time.Time) ([]models.Cel
 
 // This one processes everything in the DB and so it avoids transferring huge amount of data to the client and so it is faster
 // It stores the outcome in cache and if re-execute it again, it reads the already processed data from cache in sequences
-func (m *Metrics) recomputeRuntime(nodeId string, networkHeightBegin uint64) (int64, error) {
+func (m *Metrics) recomputeRuntime(nodeId string, networkHeightBegin uint64, endTime time.Time) (int64, error) {
 
 	startTime := time.Now().Unix()
 
@@ -111,6 +111,16 @@ func (m *Metrics) recomputeRuntime(nodeId string, networkHeightBegin uint64) (in
 			break // no results
 		}
 	}
+
+	//TODO: this is a quick fix, apply the required changes to the main query above after we ran stuff
+	latestNodeData, err := m.GetNodeDataByMetricTime(nodeId, endTime)
+	if err != nil {
+		return 0, err
+	}
+	if latestIdFromCache >= latestNodeData.ID {
+		return latestRuntimeFromCache, nil
+	}
+
 	if err := database.CachedQuery(m.db, SQL, &rows); err != nil {
 		return 0, err
 	}
@@ -233,6 +243,28 @@ func (m *Metrics) GetLatestNodeData(nodeId string) (models.CelestiaNode, error) 
 		ORDER BY "id" DESC
 		LIMIT 1`, nodeId)
 	if err := database.Query(m.db, SQL, &rows); err != nil {
+		return models.CelestiaNode{}, err
+	}
+	if len(rows) == 0 {
+		return models.CelestiaNode{}, fmt.Errorf("node not found")
+	}
+	return rows[0], nil
+
+}
+
+func (m *Metrics) GetNodeDataByMetricTime(nodeId string, metricTime time.Time) (models.CelestiaNode, error) {
+
+	var rows []models.CelestiaNode
+
+	SQL := fmt.Sprintf(`
+		SELECT *
+		FROM "celestia_nodes" 
+		WHERE 
+			"node_id" = '%s'
+			AND "created_at" >= '%v'
+		ORDER BY "id" ASC
+		LIMIT 1`, nodeId, metricTime)
+	if err := database.CachedQuery(m.db, SQL, &rows); err != nil {
 		return models.CelestiaNode{}, err
 	}
 	if len(rows) == 0 {

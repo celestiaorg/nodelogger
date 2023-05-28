@@ -49,9 +49,10 @@ var uptimeRecomputeCmd = &cobra.Command{
 		mt := metrics.New(db)
 
 		uptimeStartTime := getUptimeStartTime(logger)
+		uptimeEndTime := getUptimeEndTime(logger)
 
 		fmt.Printf("Computing uptime for all nodes...\n")
-		nodesList, err := mt.RecomputeUptimeForAll(uptimeStartTime)
+		nodesList, err := mt.RecomputeUptimeForAll(uptimeStartTime, uptimeEndTime)
 		if err != nil {
 			return err
 		}

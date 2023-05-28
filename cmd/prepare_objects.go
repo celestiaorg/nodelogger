@@ -57,6 +57,20 @@ func getUptimeStartTime(logger *zap.Logger) time.Time {
 	return uptimeStartTime
 }
 
+func getUptimeEndTime(logger *zap.Logger) time.Time {
+
+	uptimeEndTimeStr := os.Getenv("UPTIME_END_TIME")
+	if uptimeEndTimeStr == "" {
+		logger.Fatal("`UPTIME_END_TIME` is empty")
+	}
+	uptimeEndTime, err := time.Parse(time.RFC3339, uptimeEndTimeStr)
+	if err != nil {
+		logger.Fatal(fmt.Sprintf("Error parsing `UPTIME_END_TIME` date: %v", err))
+	}
+
+	return uptimeEndTime
+}
+
 func getPrometheusReceiver(logger *zap.Logger) *receiver.PrometheusReceiver {
 
 	if getDemoMode() {

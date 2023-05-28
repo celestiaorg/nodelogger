@@ -32,7 +32,7 @@ func (m *Metrics) RecomputeUptimeForAll(uptimeStartTime, uptimeEndTime time.Time
 
 	for i, nodeId := range rows {
 		fmt.Printf("[ %d / %d ] nodeId: %v ", i+1, len(rows), nodeId)
-		latestNodeData, err := m.GetLatestNodeData(nodeId)
+		latestNodeData, err := m.GetNodeDataByMetricTime(nodeId, uptimeEndTime)
 		if err != nil {
 			return nodesList, err
 		}
@@ -85,7 +85,7 @@ func (m *Metrics) recomputeRuntime(nodeId string, networkHeightBegin uint64, end
 		WHERE 
 			t1."id" >= %d
 			AND t1."network_height" > %d 	
-			AND t1."created_at" < '%v'::timestamp
+			AND t1."created_at" < CAST('%s' AS TIMESTAMP)
 			AND t1."node_id" = '%s'
 		GROUP BY 
 			t1."id", t1."node_id", t1."created_at" 
@@ -94,7 +94,7 @@ func (m *Metrics) recomputeRuntime(nodeId string, networkHeightBegin uint64, end
 		) AS subquery
 		WHERE "time_gap_seconds" < 100`
 
-	SQL := fmt.Sprintf(SQLTxt, latestRuntimeFromCache, latestIdFromCache, networkHeightBegin, endTime, nodeId)
+	SQL := fmt.Sprintf(SQLTxt, latestRuntimeFromCache, latestIdFromCache, networkHeightBegin, endTime.Format("2006-01-02 15:04:05-07:00"), nodeId)
 	for database.ExistCachedQuery(SQL) {
 		if err := database.CachedQuery(m.db, SQL, &rows); err != nil {
 			return 0, err
@@ -253,9 +253,9 @@ func (m *Metrics) GetNodeDataByMetricTime(nodeId string, metricTime time.Time) (
 		FROM "celestia_nodes" 
 		WHERE 
 			"node_id" = '%s'
-			AND "created_at" >= '%v'
+			AND "created_at" >= CAST('%s' AS TIMESTAMP)
 		ORDER BY "id" ASC
-		LIMIT 1`, nodeId, metricTime)
+		LIMIT 1`, nodeId, metricTime.Format("2006-01-02 15:04:05-07:00"))
 	if err := database.CachedQuery(m.db, SQL, &rows); err != nil {
 		return models.CelestiaNode{}, err
 	}
@@ -289,10 +289,9 @@ func (m *Metrics) getNetworkHeightAtTime(metricTime time.Time) (uint64, error) {
 	var rows []models.CelestiaNode
 
 	SQL := fmt.Sprintf(`
-		SELECT 
-			MAX("network_height") AS "network_height"
+		SELECT MAX("network_height") AS "network_height"
 		FROM "celestia_nodes"
-		WHERE "created_at" < '%v'::timestamp`, metricTime)
+		WHERE "created_at" < CAST('%s' AS TIMESTAMP)`, metricTime.Format("2006-01-02 15:04:05-07:00"))
 
 	if err := database.CachedQuery(m.db, SQL, &rows); err != nil {
 		return 0, err

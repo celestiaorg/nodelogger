@@ -40,7 +40,7 @@ func (m *Metrics) RecomputeUptimeForAll(uptimeStartTime, uptimeEndTime time.Time
 		if err != nil {
 			return nodesList, err
 		}
-		networkHeight, err := m.getTheLatestNetworkHeight()
+		networkHeight, err := m.getNetworkHeightAtTime(uptimeEndTime)
 		if err != nil {
 			return nodesList, err
 		}
@@ -276,6 +276,25 @@ func (m *Metrics) getTheLatestNetworkHeight() (uint64, error) {
 		FROM "celestia_nodes"`
 
 	if err := database.Query(m.db, SQL, &rows); err != nil {
+		return 0, err
+	}
+	if len(rows) == 0 {
+		return 0, fmt.Errorf("node not found")
+	}
+	return rows[0].NetworkHeight, nil
+}
+
+func (m *Metrics) getNetworkHeightAtTime(metricTime time.Time) (uint64, error) {
+
+	var rows []models.CelestiaNode
+
+	SQL := fmt.Sprintf(`
+		SELECT 
+			MAX("network_height") AS "network_height"
+		FROM "celestia_nodes"
+		WHERE "created_at" < '%v'`, metricTime)
+
+	if err := database.CachedQuery(m.db, SQL, &rows); err != nil {
 		return 0, err
 	}
 	if len(rows) == 0 {

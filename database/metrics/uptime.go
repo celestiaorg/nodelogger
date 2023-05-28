@@ -106,7 +106,7 @@ func (m *Metrics) recomputeRuntime(nodeId string, networkHeightBegin uint64, end
 
 			latestIdFromCache = rows[0].ID
 			latestRuntimeFromCache = rows[0].NewRuntime
-			SQL = fmt.Sprintf(SQLTxt, latestRuntimeFromCache, latestIdFromCache, networkHeightBegin, endTime, nodeId)
+			SQL = fmt.Sprintf(SQLTxt, latestRuntimeFromCache, latestIdFromCache, networkHeightBegin, endTime.Format("2006-01-02 15:04:05-07:00"), nodeId)
 		} else {
 
 			break // no results

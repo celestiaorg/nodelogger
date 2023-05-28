@@ -85,7 +85,7 @@ func (m *Metrics) recomputeRuntime(nodeId string, networkHeightBegin uint64, end
 		WHERE 
 			t1."id" >= %d
 			AND t1."network_height" > %d 	
-			AND t1."created_at" < '%v'
+			AND t1."created_at" < '%v'::timestamp
 			AND t1."node_id" = '%s'
 		GROUP BY 
 			t1."id", t1."node_id", t1."created_at" 
@@ -292,7 +292,7 @@ func (m *Metrics) getNetworkHeightAtTime(metricTime time.Time) (uint64, error) {
 		SELECT 
 			MAX("network_height") AS "network_height"
 		FROM "celestia_nodes"
-		WHERE "created_at" < '%v'`, metricTime)
+		WHERE "created_at" < '%v'::timestamp`, metricTime)
 
 	if err := database.CachedQuery(m.db, SQL, &rows); err != nil {
 		return 0, err

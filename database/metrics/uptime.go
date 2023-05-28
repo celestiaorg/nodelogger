@@ -85,6 +85,7 @@ func (m *Metrics) recomputeRuntime(nodeId string, networkHeightBegin uint64, end
 		WHERE 
 			t1."id" >= %d
 			AND t1."network_height" > %d 	
+			AND "created_at" < '%v'
 			AND t1."node_id" = '%s'
 		GROUP BY 
 			t1."id", t1."node_id", t1."created_at" 
@@ -93,7 +94,7 @@ func (m *Metrics) recomputeRuntime(nodeId string, networkHeightBegin uint64, end
 		) AS subquery
 		WHERE "time_gap_seconds" < 100`
 
-	SQL := fmt.Sprintf(SQLTxt, latestIdFromCache, latestRuntimeFromCache, networkHeightBegin, nodeId)
+	SQL := fmt.Sprintf(SQLTxt, latestRuntimeFromCache, latestIdFromCache, networkHeightBegin, endTime, nodeId)
 	for database.ExistCachedQuery(SQL) {
 		if err := database.CachedQuery(m.db, SQL, &rows); err != nil {
 			return 0, err
@@ -105,20 +106,11 @@ func (m *Metrics) recomputeRuntime(nodeId string, networkHeightBegin uint64, end
 
 			latestIdFromCache = rows[0].ID
 			latestRuntimeFromCache = rows[0].NewRuntime
-			SQL = fmt.Sprintf(SQLTxt, latestIdFromCache, latestRuntimeFromCache, networkHeightBegin, nodeId)
+			SQL = fmt.Sprintf(SQLTxt, latestRuntimeFromCache, latestIdFromCache, networkHeightBegin, endTime, nodeId)
 		} else {
 
 			break // no results
 		}
-	}
-
-	//TODO: this is a quick fix, apply the required changes to the main query above after we ran stuff
-	latestNodeData, err := m.GetNodeDataByMetricTime(nodeId, endTime)
-	if err != nil {
-		return 0, err
-	}
-	if latestIdFromCache >= latestNodeData.ID {
-		return latestRuntimeFromCache, nil
 	}
 
 	if err := database.CachedQuery(m.db, SQL, &rows); err != nil {

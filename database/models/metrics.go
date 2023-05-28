@@ -8,7 +8,12 @@ import (
 )
 
 type CelestiaNode struct {
-	gorm.Model
+	// gorm.Model:
+	ID        uint      `gorm:"primarykey"`
+	CreatedAt time.Time `gorm:"index"`
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+	// ----------
 	NodeId                                      string `gorm:"index;type:varchar(255);not null"`
 	NodeType                                    receiver.NodeType
 	Version                                     string `gorm:"index;type:varchar(255);"`

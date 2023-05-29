@@ -3,6 +3,7 @@ package metrics
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/celestiaorg/leaderboard-backend/receiver"
@@ -85,7 +86,7 @@ func (m *Metrics) recomputeRuntime(nodeId string, networkHeightBegin uint64, end
 			"celestia_nodes" t1 
 			LEFT JOIN "celestia_nodes" t2 ON t1.node_id = t2.node_id AND t1."created_at" < t2."created_at" 
 		WHERE 
-			t1."id" >= %d
+			t1."id" > %d
 			AND t1."network_height" > %d 	
 			AND t1."created_at" < CAST('%s' AS TIMESTAMP)
 			AND t1."node_id" = '%s'
@@ -1209,22 +1210,31 @@ func getPredefinedNodeIdsList() []string {
 		"12D3KooWEzxLnPRy8en2TTADsdMx8hMkn8n7o5P3F9YYrpgWYzSa",
 	}
 
-	if os.Getenv("REVERSE_NODES_LIST") == "true" {
-		reverseSlice(nodesList)
+	totalInstances, err := strconv.ParseInt(os.Getenv("TOTAL_INSTANCES"), 10, 64)
+	if err != nil {
+		panic(fmt.Sprintf("parsing `TOTAL_INSTANCES` value: %v", err))
 	}
-	return nodesList
-}
 
-func reverseSlice(slice []string) {
-	left := 0
-	right := len(slice) - 1
-
-	for left < right {
-		// Swap elements
-		slice[left], slice[right] = slice[right], slice[left]
-
-		// Move indices towards the middle
-		left++
-		right--
+	instanceIndex, err := strconv.ParseInt(os.Getenv("INSTANCE_INDEX"), 10, 64)
+	if err != nil {
+		panic(fmt.Sprintf("parsing `INSTANCE_INDEX` value: %v", err))
 	}
+
+	chunkSize := int64(len(nodesList)) / totalInstances
+	if chunkSize == 0 {
+		return nodesList // When totalInstances is larger than the list length
+	}
+
+	start := instanceIndex * chunkSize
+	end := start + chunkSize
+
+	if start >= int64(len(nodesList)) {
+		return []string{} // instanceIndex is out of range
+	}
+
+	if end > int64(len(nodesList)) || int64(len(nodesList[start:])) < 2*chunkSize {
+		end = int64(len(nodesList))
+	}
+
+	return nodesList[start:end]
 }

@@ -2,6 +2,7 @@ package metrics
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/celestiaorg/leaderboard-backend/receiver"
@@ -305,7 +306,7 @@ func (m *Metrics) getNetworkHeightAtTime(metricTime time.Time) (uint64, error) {
 
 // This list is extracted from the knack portal to make the calculation faster
 func getPredefinedNodeIdsList() []string {
-	return []string{
+	nodesList := []string{
 		"12D3KooWAbFAdwGBugn6TZscAMy6cde8n8DLoFJywpsLJLhWahFT",
 		"12D3KooWAuemDk5eDa2wjY4LukoNkhH1ZN2DrVdLPb3SLCMVGRd9",
 		"12D3KooWNNTn9zJDA6atuswEGKknFYDgzBkay6uWYPoWVBBid3DH",
@@ -1206,5 +1207,24 @@ func getPredefinedNodeIdsList() []string {
 		"12D3KooWFg4fZ9HDCANwxykJSnc2qKAez47jkEbis9SDXa3ovMnm",
 		"12D3KooWT35kFWhGc7NVpLjEBSxFEwFyttJN8jBzm96vuMs4AZDS",
 		"12D3KooWEzxLnPRy8en2TTADsdMx8hMkn8n7o5P3F9YYrpgWYzSa",
+	}
+
+	if os.Getenv("REVERSE_NODES_LIST") == "true" {
+		reverseSlice(nodesList)
+	}
+	return nodesList
+}
+
+func reverseSlice(slice []string) {
+	left := 0
+	right := len(slice) - 1
+
+	for left < right {
+		// Swap elements
+		slice[left], slice[right] = slice[right], slice[left]
+
+		// Move indices towards the middle
+		left++
+		right--
 	}
 }

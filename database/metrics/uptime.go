@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/celestiaorg/leaderboard-backend/receiver"
@@ -37,6 +38,10 @@ func (m *Metrics) RecomputeUptimeForAll(uptimeStartTime, uptimeEndTime time.Time
 		fmt.Printf("[ %d / %d ] nodeId: %v ", i+1, len(rows), nodeId)
 		latestNodeData, err := m.GetNodeDataByMetricTime(nodeId, uptimeEndTime)
 		if err != nil {
+			if strings.Contains(err.Error(), "node not found") {
+				fmt.Printf("\terr: %v\n", err)
+				continue
+			}
 			return nodesList, err
 		}
 		newRunTime, err := m.recomputeRuntime(nodeId, 0, uptimeEndTime)

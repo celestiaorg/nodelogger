@@ -124,7 +124,7 @@ func (m *Metrics) recomputeRuntime(nodeId string, networkHeightBegin uint64, end
 	if err := database.CachedQuery(m.db, SQL, &rows); err != nil {
 		return 0, err
 	}
-	if len(rows) == 0 {
+	if len(rows) == 0 || rows[0].ID == 0 {
 		return latestRuntimeFromCache, nil
 	}
 

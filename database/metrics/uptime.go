@@ -125,7 +125,7 @@ func (m *Metrics) recomputeRuntime(nodeId string, networkHeightBegin uint64, end
 		return 0, err
 	}
 	if len(rows) == 0 {
-		return 0, nil
+		return latestRuntimeFromCache, nil
 	}
 
 	timeLapse := time.Now().Unix() - startTime

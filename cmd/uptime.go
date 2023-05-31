@@ -123,7 +123,7 @@ func exportNodeUptimeCSV(nodesList []models.CelestiaNode) error {
 	w := csv.NewWriter(fw)
 	defer w.Flush()
 
-	csvHeader := []string{"node_id", "old_uptime", "new_uptime", "difference", "new_total_runtime", "if_up_always", "seconds_to_be_perfect", "start_time"}
+	csvHeader := []string{"node_id", "old_uptime", "new_uptime", "difference", "new_total_runtime", "if_up_always", "seconds_to_be_perfect", "start_time", "node_type"}
 	// Writing the header
 	if err := w.Write(csvHeader); err != nil {
 		return err
@@ -141,6 +141,8 @@ func exportNodeUptimeCSV(nodesList []models.CelestiaNode) error {
 		csvRow = append(csvRow, fmt.Sprint(ifUpAlways-int64(node.LastAccumulativeNodeRuntimeCounterInSeconds))) // how many seconds missed to be 100.00% up
 
 		csvRow = append(csvRow, fmt.Sprint(node.StartTime))
+		csvRow = append(csvRow, fmt.Sprint(node.NodeType.String()))
+
 		// Writing the csv row
 		if err := w.Write(csvRow); err != nil {
 			return err

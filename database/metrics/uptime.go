@@ -27,12 +27,12 @@ func (m *Metrics) RecomputeUptimeForAll(uptimeStartTime, uptimeEndTime time.Time
 
 	nodesList := []models.CelestiaNode{}
 
-	// rows := []string{}
-	// SQL := `SELECT DISTINCT "node_id" from "celestia_nodes"`
-	// if err := database.CachedQuery(m.db, SQL, &rows); err != nil {
-	// 	return nodesList, err
-	// }
-	rows := getPredefinedNodeIdsList()
+	rows := []string{}
+	SQL := `SELECT DISTINCT "node_id" from "celestia_nodes"`
+	if err := database.CachedQuery(m.db, SQL, &rows); err != nil {
+		return nodesList, err
+	}
+	// rows := getPredefinedNodeIdsList()
 
 	for i, nodeId := range rows {
 		fmt.Printf("[ %d / %d ] nodeId: %v ", i+1, len(rows), nodeId)
@@ -311,6 +311,7 @@ func (m *Metrics) getNetworkHeightAtTime(metricTime time.Time) (uint64, error) {
 }
 
 // This list is extracted from the knack portal to make the calculation faster
+// This is a dirty hack to make it quickly processed
 func getPredefinedNodeIdsList() []string {
 	nodesList := []string{
 		"12D3KooWAbFAdwGBugn6TZscAMy6cde8n8DLoFJywpsLJLhWahFT",
